@@ -1,0 +1,3 @@
+[deps]
+CoherentNoise = "ed00b2c2-5b46-4e27-bc36-2fe32afd642e"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
