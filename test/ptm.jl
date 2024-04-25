@@ -1,5 +1,5 @@
 using Test, CoherentNoise, Yao
-using CoherentNoise: damping_channel, pauli_channel, unitary_channel
+using CoherentNoise: damping_channel, pauli_channel, unitary_channel, depolarizing_channel
 using CoherentNoise: PauliTransferMatrix, is_tp, preserve_hermitian, is_unital, is_unitary, is_cvx_sum_pauli
 
 
@@ -31,6 +31,8 @@ display(ptm.mtx)
 @test is_cvx_sum_pauli(ptm)
 @test is_unital(ptm)
 @test !is_unitary(ptm)
+
+dpc = depolarizing_channel(0.1)
 
 
 end

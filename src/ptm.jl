@@ -1,7 +1,7 @@
 using Random, LinearAlgebra
 using Yao
 
-struct QuantumChannel{T<:AbstractFloat, MT<:AbstractMatrix{Complex{T}}}
+struct QuantumChannel{T<:AbstractFloat,MT<:AbstractMatrix{Complex{T}}}
     n::Int
     kraus_ops::Vector{MT}
 end
@@ -30,6 +30,16 @@ function pauli_channel(probs::Vector{T}) where {T<:AbstractFloat}
         [
             sqrt(p) * mat(kron(pauli...)) for
             (p, pauli) in zip(probs, Iterators.product(repeat([[I2, X, Y, Z]], n)...))
+        ],
+    )
+end
+
+function depolarizing_channel(λ::T) where {T<:AbstractFloat}
+    return QuantumChannel(
+        1,
+        [
+            p * mat(kraus) for (p, kraus) in
+            zip([sqrt(1 - 3 * λ / 4), [sqrt(λ / 4) for _ in 1:3]...], [I2, X, Y, Z])
         ],
     )
 end
@@ -83,9 +93,8 @@ end
 
 function is_unitary(ptm::PauliTransferMatrix{T}; atol=1e-10) where {T}
     return (
-        is_unital(ptm; atol=atol) && isapprox(
-            unital(ptm) * transpose(unital(ptm)), I(4^ptm.n - 1); atol=atol
-        )
+        is_unital(ptm; atol=atol) &&
+        isapprox(unital(ptm) * transpose(unital(ptm)), I(4^ptm.n - 1); atol=atol)
     )
 end
 
