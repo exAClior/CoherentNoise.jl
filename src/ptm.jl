@@ -71,6 +71,10 @@ function PauliTransferMatrix(qc::QuantumChannel{T}) where {T}
     return PauliTransferMatrix(n, mtx)
 end
 
+function Base.:(^)(ptm::PauliTransferMatrix{T}, m::Int) where {T}
+    return PauliTransferMatrix(ptm.n, ptm.mtx^m)
+end
+
 nonunital(ptm::PauliTransferMatrix{T}) where {T} = ptm.mtx[2:end, 1]
 
 unital(ptm::PauliTransferMatrix{T}) where {T} = ptm.mtx[2:end, 2:end]
@@ -100,4 +104,16 @@ end
 
 function is_cvx_sum_pauli(ptm::PauliTransferMatrix{T}; atol=1e-10) where {T}
     return all(isapprox.(ptm.mtx .- Diagonal(ptm.mtx), zero(Complex{T}), atol=atol))
+end
+
+function average_channel(ptm::PauliTransferMatrix{T}) where {T}
+    d = 2^ptm.n
+    p = tr(unital(ptm)) / (d^2 - 1)
+    return depolarizing_channel(p)
+end
+
+function average_infidelity(ptm::PauliTransferMatrix{T}) where {T}
+    d = 2^ptm.n
+    !isone(ptm.mtx[1, 1]) && throw(ArgumentError("The first element of PTM is not unit"))
+    return real(tr(I(d^2) - ptm.mtx) / d * (d + 1))
 end
